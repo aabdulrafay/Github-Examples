@@ -1,0 +1,100 @@
+name: "Module 6 - Matrix Caching and Service Containers"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  matrix-parallel-build:
+    name: "Matrix: Node ${{ matrix.node-version }} on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node-version: [18.x, 20.x]
+    steps:
+      - name: "Checkout repository code"
+        uses: actions/checkout@v4
+
+      - name: "Setup Node.js ${{ matrix.node-version }}"
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: "Validate Runtime & Environment Matrix Execution"
+        run: |
+          node -v
+          npm -v
+          echo "Parallel matrix job successfully running on ${{ matrix.os }} with Node ${{ matrix.node-version }}"
+
+  caching-demonstration:
+    name: "Dependency Caching with actions/cache"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Cache NPM dependencies"
+        id: npm-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-cache-${{ hashFiles('**/github-actions/pg/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-cache-
+
+      - name: "Install dependencies in github-actions/pg"
+        run: |
+          cd ./github-actions/pg
+          npm install
+
+      - name: "Report Cache Hit / Miss Status"
+        run: |
+          echo "=============================================="
+          echo "Cache Key: ${{ steps.npm-cache.outputs.cache-hit }}"
+          echo "Cache Hit Status: ${{ steps.npm-cache.outputs.cache-hit != '' && steps.npm-cache.outputs.cache-hit || 'Cache Miss (First Run - Cached for future runs)' }}"
+          echo "=============================================="
+
+  postgresql-service-container:
+    name: "Ephemeral PostgreSQL Service Container"
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Setup Node.js Environment"
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: "Install PostgreSQL Client Dependencies"
+        run: |
+          cd ./github-actions/pg
+          npm install
+
+      - name: "Execute Integration Queries against PostgreSQL Container"
+        run: |
+          echo "Connecting to PostgreSQL container at localhost:5432..."
+          node ./github-actions/pg/client.js
+        env:
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres

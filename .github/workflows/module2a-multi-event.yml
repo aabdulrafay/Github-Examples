@@ -1,0 +1,30 @@
+name: "Module 2A - Multi-Event Trigger (Push & PR)"
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  multi-event-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout Code"
+        uses: actions/checkout@v4
+
+      - name: "Echo Basic Event Information"
+        run: |
+          echo "=============================================="
+          echo "GitHub Actions Multi-Event Verification"
+          echo "Triggered Event: $GITHUB_EVENT_NAME"
+          echo "Git Reference:   $GITHUB_REF"
+          echo "Target Branch:   ${{ github.ref_name }}"
+          echo "Commit SHA:      $GITHUB_SHA"
+          echo "Actor:           $GITHUB_ACTOR"
+          echo "Workflow Run ID: $GITHUB_RUN_ID"
+          echo "=============================================="

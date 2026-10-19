@@ -1,0 +1,27 @@
+name: "Module 5B - Self-Hosted Runner Execution"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  self-hosted-verification-job:
+    name: "Self-Hosted Runner Job Execution"
+    runs-on: self-hosted
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Verify Self-Hosted Environment"
+        run: |
+          echo "=============================================="
+          echo "=== SELF-HOSTED RUNNER EXECUTION ACTIVE ==="
+          echo "Runner OS:       $env:RUNNER_OS"
+          echo "Runner Name:     $env:RUNNER_NAME"
+          echo "Host Name:       $env:COMPUTERNAME"
+          echo "Architecture:    $env:PROCESSOR_ARCHITECTURE"
+          echo "Executed via GitHub Actions Local Runner daemon"
+          echo "=============================================="
+        shell: powershell

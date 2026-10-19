@@ -1,0 +1,21 @@
+name: "Module 2B - Scheduled Cron Trigger"
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  cron-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Log Scheduled Execution Details"
+        run: |
+          echo "=============================================="
+          echo "GitHub Actions Scheduled Cron Verification"
+          echo "Triggered Event: $GITHUB_EVENT_NAME"
+          echo "Current UTC Server Time: $(date -u)"
+          echo "Workflow Run ID: $GITHUB_RUN_ID"
+          echo "Cron Schedule Expression: '*/5 * * * *'"
+          echo "Operating on Default Branch: ${{ github.event.repository.default_branch }}"
+          echo "=============================================="

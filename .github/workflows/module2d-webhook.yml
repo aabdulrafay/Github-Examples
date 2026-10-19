@@ -1,0 +1,22 @@
+name: "Module 2D - Repository Dispatch Webhook"
+
+on:
+  repository_dispatch:
+    types:
+      - custom-webhook
+      - webhook
+  workflow_dispatch:
+
+jobs:
+  webhook-response-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Log External Webhook Dispatch Details"
+        run: |
+          echo "=============================================="
+          echo "Webhook Repository Dispatch Event Received!"
+          echo "Event Name:   $GITHUB_EVENT_NAME"
+          echo "Action / Type: ${{ github.event.action }}"
+          echo "Sender:       ${{ github.event.sender.login }}"
+          echo "Payload Data: ${{ toJson(github.event.client_payload) }}"
+          echo "=============================================="

@@ -1,0 +1,74 @@
+name: "Module 5A - Multi-OS GitHub Runners"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  ubuntu-runner-job:
+    name: "Ubuntu Linux Runner"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Inspect Linux OS Environment"
+        run: |
+          echo "=== UBUNTU HOSTED RUNNER VERIFICATION ==="
+          uname -a
+          lsb_release -d
+          echo "Runner Architecture: ${{ runner.arch }}"
+          echo "Host User: $(whoami)"
+
+  windows-runner-job:
+    name: "Windows Runner with PowerShell and Dotnet"
+    runs-on: windows-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Execute PowerShell Script and System Info"
+        shell: powershell
+        run: |
+          Write-Output "=== WINDOWS HOSTED RUNNER VERIFICATION ==="
+          Write-Output "Operating System: $env:OS"
+          [System.Environment]::OSVersion.VersionString
+          Get-CimInstance Win32_OperatingSystem | Select-Object Caption, Version, BuildNumber | Format-Table -AutoSize
+
+      - name: "Compile and Run C# Program"
+        shell: powershell
+        run: |
+          Write-Output "Creating and compiling C# source..."
+          Add-Content -Path "Hello.cs" -Value @"
+          using System;
+          public class Hello {
+              public static void Main() {
+                  Console.WriteLine("Successfully compiled and executed C# on Windows Runner!");
+              }
+          }
+          "@
+          dotnet new console --force --no-restore
+          Move-Item -Path "Hello.cs" -Destination "Program.cs" -Force
+          dotnet run
+
+  macos-runner-job:
+    name: "macOS Runner with Swift Compilation"
+    runs-on: macos-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Inspect macOS Environment"
+        run: |
+          echo "=== MACOS HOSTED RUNNER VERIFICATION ==="
+          sw_vers
+          uname -m
+
+      - name: "Compile and Run Swift Program"
+        run: |
+          echo "Creating Swift source file..."
+          echo 'print("Successfully compiled and executed Swift on macOS Runner!")' > hello.swift
+          swiftc hello.swift -o hello
+          ./hello

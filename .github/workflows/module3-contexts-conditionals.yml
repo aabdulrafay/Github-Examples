@@ -1,0 +1,58 @@
+name: "Module 3 - Architecture Contexts and Conditionals"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  GLOBAL_COURSE: "GitHub Actions Certification"
+  ENVIRONMENT_STAGE: "Staging"
+
+jobs:
+  inspect-architecture-contexts:
+    name: "Inspect Context Objects & Expression Conditionals"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Step 1: Check out repository using Action"
+        uses: actions/checkout@v4
+
+      - name: "Step 2: Context Inspection Logging"
+        env:
+          STEP_SPECIFIC_VAR: "ActiveStepContextValue"
+        run: |
+          echo "=============================================="
+          echo "=== MODULE 3: CONTEXT OBJECTS LOGGING ==="
+          echo "github.actor:      ${{ github.actor }}"
+          echo "github.event_name: ${{ github.event_name }}"
+          echo "github.repository: ${{ github.repository }}"
+          echo "github.ref:        ${{ github.ref }}"
+          echo "github.workflow:   ${{ github.workflow }}"
+          echo "runner.os:         ${{ runner.os }}"
+          echo "runner.arch:       ${{ runner.arch }}"
+          echo "runner.temp:       ${{ runner.temp }}"
+          echo "vars.APP_ENV:      ${{ vars.APP_ENV }}"
+          echo "env.GLOBAL_COURSE: ${{ env.GLOBAL_COURSE }}"
+          echo "env.STEP_SPECIFIC: $STEP_SPECIFIC_VAR"
+          echo "=============================================="
+
+      - name: "Step 3: Conditional with contains() Function"
+        if: contains(env.GLOBAL_COURSE, 'Certification')
+        run: |
+          echo "Verification SUCCESS: contains('${{ env.GLOBAL_COURSE }}', 'Certification') evaluated to true!"
+
+      - name: "Step 4: Conditional with success() Function"
+        if: success()
+        run: |
+          echo "Verification SUCCESS: success() status function confirmed all preceding steps passed."
+
+      - name: "Step 5: Simulated Conditional Failure Branch with failure()"
+        if: failure()
+        run: |
+          echo "This step only runs if a previous step failed (Skipped when all steps pass)."
+
+      - name: "Step 6: Conditional Cleanup with always() Function"
+        if: always()
+        run: |
+          echo "Verification SUCCESS: always() status function executed guaranteed teardown/reporting."

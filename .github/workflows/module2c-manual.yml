@@ -1,0 +1,43 @@
+name: "Module 2C - Manual Trigger with Inputs"
+
+on:
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name of the student or recipient'
+        required: true
+        default: 'Abdul Rafay'
+        type: string
+      greeting:
+        description: 'Greeting phrase'
+        required: true
+        default: 'Welcome to GitHub Actions Certification'
+        type: string
+      data:
+        description: 'Base64 encoded payload content'
+        required: false
+        default: 'SGVsbG8gZnJvbSBHaXRIdWIgQWN0aW9ucyBNYW51YWwgVHJpZ2dlciE='
+        type: string
+
+jobs:
+  manual-greet-job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Decode File Content"
+        run: |
+          echo "Decoding base64 data input..."
+          echo "${{ inputs.data }}" | base64 --decode > ./decoded_payload.txt
+
+      - name: "Display Greeting and Form Inputs"
+        run: |
+          echo "=============================================="
+          echo "Greeting Message: ${{ inputs.greeting }}, ${{ inputs.name }}!"
+          echo "Actor Triggered:  $GITHUB_ACTOR"
+          echo "Event Name:       $GITHUB_EVENT_NAME"
+          echo "=============================================="
+
+      - name: "Display Decoded File Content"
+        run: |
+          echo "Decoded payload content from inputs.data:"
+          cat ./decoded_payload.txt
+          echo ""

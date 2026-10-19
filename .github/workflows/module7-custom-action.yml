@@ -1,0 +1,44 @@
+name: "Module 7 - Custom JavaScript Action Invocation"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      who-to-greet:
+        description: 'Person or entity to greet with the custom action'
+        required: true
+        default: 'Abdul Rafay'
+
+jobs:
+  run-custom-action:
+    name: "Execute Custom JavaScript Action"
+    runs-on: ubuntu-latest
+    steps:
+      - name: "Checkout repository"
+        uses: actions/checkout@v4
+
+      - name: "Run Local Custom JavaScript Action"
+        id: custom-action-step
+        uses: ./custom-js-action
+        with:
+          who-to-greet: ${{ inputs.who-to-greet || 'Abdul Rafay' }}
+
+      - name: "Display Output from Custom Action"
+        run: |
+          echo "=============================================="
+          echo "Output 'greeting': ${{ steps.custom-action-step.outputs.greeting }}"
+          echo "Output 'time':     ${{ steps.custom-action-step.outputs.time }}"
+          echo "Custom Action Step executed successfully!"
+          echo "=============================================="
+
+      - name: "Execute Course Demo Action (Barsoom)"
+        id: barsoom-action
+        uses: omenking/barsoom@0.0.6
+        with:
+          name: 'Abdul Rafay'
+
+      - name: "Display Barsoom Output"
+        run: |
+          echo "Course Demo Output: ${{ steps.barsoom-action.outputs.greeting }}"
